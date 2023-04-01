@@ -32,6 +32,7 @@ class Config(object):
         # On coco dataset, 100, 000 sets -> 850G
 
         # Training
+        self.model = "resnet"
         self.lr = 1e-4
         self.betas = (0.9, 0.999)
         self.batch_size_test = 1
