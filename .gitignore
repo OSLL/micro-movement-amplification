@@ -5,4 +5,4 @@ data/*
 dataset/**
 !dataset/*.py
 !dataset/*.sh
-motion_magnification_learning-based/**
+**motion_magnification_learning-based/**
