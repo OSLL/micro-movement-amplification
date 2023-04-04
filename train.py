@@ -10,6 +10,7 @@ from tqdm import tqdm
 from torch.utils.tensorboard import SummaryWriter
 
 from config import Config
+from losses import make_criterion
 from model import make_net
 from models.magnet import MagNet
 from data import get_gen_ABC
@@ -17,9 +18,9 @@ from callbacks import save_model, gen_state_dict
 
 config = Config()
 device = "cuda" if torch.cuda.is_available() else "cpu"
-# cudnn.benchmark = True
+cudnn.benchmark = True
 
-net = make_net(config)
+net = make_net(config).to(device)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 writer = SummaryWriter()
 print(net)
@@ -28,7 +29,9 @@ print(net)
 if config.pretrained_weights:
     net.load_state_dict(gen_state_dict(config.pretrained_weights))
 
-criterion = nn.L1Loss().to(device)
+criterion = make_criterion(config)
+
+loss_fun = nn.L1Loss().to(device)
 
 optimizer = optim.Adam(net.parameters(), lr=config.lr, betas=config.betas)
 
@@ -51,7 +54,7 @@ for epoch in range(1, config.epochs + 1):
 
         y_hat, texture_AC, texture_BM, motion_BC = net(batch_A, batch_B, batch_C, batch_M, batch_amp, mode='train')
         loss_y, loss_texture_AC, loss_texture_BM, loss_motion_BC = criterion(y_hat, batch_M, texture_AC, texture_BM,
-                                                                             motion_BC, criterion)
+                                                                             motion_BC, loss_fun)
 
         loss = loss_y + (loss_texture_AC + loss_texture_BM + loss_motion_BC) * 0.1
         writer.add_scalar("loss", loss)
