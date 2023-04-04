@@ -1,7 +1,10 @@
 from torch import nn
+from models.magnet import MagNet
 
+def make_net(config):
+    net = None
+    if config.model == "resnet":
+        net = MagNet
 
-def make_net():
-    return nn.Sequential(
-
-    )
+    print(net)
+    return net()

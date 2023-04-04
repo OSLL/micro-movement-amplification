@@ -13,7 +13,7 @@ class Config(object):
         self.date = '0510'
 
         # Data
-        self.data_dir = '../dataset/data'
+        self.data_dir = './dataset/data'
         self.dir_train = os.path.join(self.data_dir, 'train')
         self.dir_test = os.path.join(self.data_dir, 'test')
         self.dir_water = os.path.join(self.data_dir, 'train/train_vid_frames/val_water')
@@ -37,7 +37,7 @@ class Config(object):
         self.betas = (0.9, 0.999)
         self.batch_size_test = 1
         self.preproc = ['poisson']  # ['resize', ]
-        self.pretrained_weights = 'magnet_epoch12_loss7.28e-02.pth'
+        self.pretrained_weights = "" #'magnet_epoch12_loss7.28e-02.pth'
 
         # Callbacks
         self.num_val_per_epoch = 10

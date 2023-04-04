@@ -9,7 +9,6 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 from PIL import Image, ImageFile
 
-
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 Tensor = torch.cuda.FloatTensor
 
@@ -38,6 +37,7 @@ def load_unit(path):
         print('Unsupported file type.')
         return None
 
+
 def unit_preprocessing(unit, preproc=[], is_test=False):
     # Preprocessing
     if 'BF' in preproc and is_test:
@@ -45,7 +45,7 @@ def unit_preprocessing(unit, preproc=[], is_test=False):
     if 'resize' in preproc:
         unit = cv2.resize(unit, (384, 384), interpolation=cv2.INTER_LANCZOS4)
     elif 'downsample' in preproc:
-        unit = cv2.resize(unit, unit.shape[1]//2, unit.shape[0]//2, interpolation=cv2.INTER_LANCZOS4)
+        unit = cv2.resize(unit, unit.shape[1] // 2, unit.shape[0] // 2, interpolation=cv2.INTER_LANCZOS4)
 
     unit = cv2.cvtColor(unit, cv2.COLOR_BGR2RGB)
     try:
@@ -54,7 +54,7 @@ def unit_preprocessing(unit, preproc=[], is_test=False):
 
             # unit = unit + gen_poisson_noise(unit) * np.random.uniform(0, 0.3)
 
-            unit = random_noise(unit, mode='poisson')      # unit: 0 ~ 1
+            unit = random_noise(unit, mode='poisson')  # unit: 0 ~ 1
             unit = unit * 255
     except Exception as e:
         print('EX:', e, unit.shape, unit.dtype)
@@ -105,10 +105,10 @@ def get_paths_ABC(config, mode):
             if config.skip < 0:
                 lst = [p.replace('frameA', 'frameC') for p in vid_frames]
                 for idx, _ in enumerate(lst):
-                    skip_rand = np.random.randint(min(-config.skip, 2), -config.skip+1)
+                    skip_rand = np.random.randint(min(-config.skip, 2), -config.skip + 1)
                     idx_skip = min(idx + skip_rand, len(lst) - 1)
                     paths_skip.append(lst[idx_skip])
-                    paths_skip_intermediate.append(lst[idx_skip//2])
+                    paths_skip_intermediate.append(lst[idx_skip // 2])
             paths_A += vid_frames
         paths_C = [p.replace('frameA', 'frameC') for p in paths_A]
     paths_B = [p.replace('frameC', 'frameB') for p in paths_C]

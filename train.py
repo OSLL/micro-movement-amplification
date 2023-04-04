@@ -19,10 +19,11 @@ config = Config()
 device = "cuda" if torch.cuda.is_available() else "cpu"
 # cudnn.benchmark = True
 
-net = make_net()
+net = make_net(config)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 writer = SummaryWriter()
-writer.add_graph(net)
+print(net)
+#writer.add_graph(net)
 
 if config.pretrained_weights:
     net.load_state_dict(gen_state_dict(config.pretrained_weights))
@@ -53,5 +54,6 @@ for epoch in range(1, config.epochs + 1):
                                                                              motion_BC, criterion)
 
         loss = loss_y + (loss_texture_AC + loss_texture_BM + loss_motion_BC) * 0.1
+        writer.add_scalar("loss", loss)
         loss.backward()
         optimizer.step()
