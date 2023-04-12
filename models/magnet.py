@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-from data import numpy2cuda
 
 
 def truncated_normal_(tensor, mean=0, std=1):
@@ -37,6 +36,7 @@ class Conv2D_activa(nn.Module):
         if self.activation:
             x = self.activation(x)
         return x
+
 
 class ResBlk(nn.Module):
     def __init__(self, dim_in, dim_out, dim_intermediate=32, ks=3, s=1):
@@ -157,9 +157,9 @@ class Manipulator(nn.Module):
 class MagNet(nn.Module):
     def __init__(self):
         super(MagNet, self).__init__()
-        self.encoder = Encoder(dim_in=3*1)
+        self.encoder = Encoder(dim_in=3 * 1)
         self.manipulator = Manipulator()
-        self.decoder = Decoder(dim_out=3*1)
+        self.decoder = Decoder(dim_out=3 * 1)
 
     def forward(self, batch_A, batch_B, batch_C, batch_M, amp_factor, mode='train'):
         if mode == 'train':
