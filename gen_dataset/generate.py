@@ -17,7 +17,7 @@ TEST = "test"
 LENGTH_INDEX = 6 # For, 000001 
 
 
-def prepare_dataset_structure():
+def prepare_dataset_folder_structure():
     if os.path.exists(c.OUTPUT_DIR):
         input_ans = True#input(f"Folder: {c.OUTPUT_DIR} will be deleted. Are you sure? [y/n]\n").lower() == "y"
         if not input_ans:
@@ -111,6 +111,6 @@ def generate():
         create_element_structure(test_index, TEST)
 
 if __name__ == "__main__":
-    prepare_dataset_structure()
+    prepare_dataset_folder_structure()
     generate()
     print("Done!")
