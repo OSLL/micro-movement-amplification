@@ -5,13 +5,7 @@ import shutil
 import random
 import os
 
-'''
-ЗАДАЧИ
-1. Генерация папки для одного элемента
-2. Cимуляция движения
-3. Симуляция размера
-4. Симуляция шума объекта
-'''
+
 TRAIN = "train"
 TEST = "test"
 LENGTH_INDEX = 6 # For, 000001 
@@ -53,31 +47,32 @@ def empty_noise_img(width, height):
     return img
 
 
-
 def gen_simple_objects(img):
     draw = ImageDraw.Draw(img)
-    for _ in range(3):
+    for _ in range(random.randint(c.MIN_NUM_OBJECTS, c.MAX_NUM_OBJECTS)):
     # Случайно выбираем тип объекта (круг или прямоугольник)
-        shape = random.choice(['circle', 'rectangle'])
+        shape = random.choice(['rectangle', 'ellipse'])
         
         # Случайно выбираем цвет объекта
         color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
         
         # Случайно выбираем координаты и размеры объекта
-        x1 = random.randint(0, 400)
-        y1 = random.randint(0, 400)
-        x2 = random.randint(x1, 500)
-        y2 = random.randint(y1, 500)
-        print(x1, y1, x2, y2)
-        # Рисуем объект на изображении
-        if shape == 'circle':
-            draw.ellipse((x1, y1, x2, y2), fill=color)
-        else:
-            draw.rectangle((x1, y1, x2, y2), fill=color)
+        x1 = random.randint(0, c.WIDTH - 1)
+        y1 = random.randint(0, c.HEIGHT - 1)
+        x2 = random.randint(x1, c.WIDTH)
+        y2 = random.randint(y1, c.HEIGHT)
+        #print(x1, y1, x2, y2)
+
+        getattr(draw, shape)((x1, y1, x2, y2), fill=color)
 
 
 def get_random_amp_factor():
     return random.random() * 10
+
+
+def get_random_action():
+    return random.choice(['move', 'resize'])
+
 
 def save_img(img, path):
     try:
@@ -96,12 +91,15 @@ def generate():
     for train_index in tqdm(range(c.TRAIN_DATASET_SIZE)):
         path_el = create_element_structure(train_index, TRAIN)
         amp_factor = get_random_amp_factor()
+        img = empty_noise_img(width=c.WIDTH, height=c.HEIGHT)
+        random_action = get_random_action()
+        #print(random_action)
         for frame in c.FRAME_POSTFIXES:
-            img = empty_noise_img(width=c.WIDTH, height=c.HEIGHT)
-            gen_simple_objects(img=img)
+            tmp = img.copy()
+            gen_simple_objects(img=tmp)
             #print(frame)
             filename = os.path.join(path_el, f"frame{frame}.png")
-            save_img(img=img, path=filename)
+            save_img(img=tmp, path=filename)
             #print(filename)
             #print(amp_factor)
 

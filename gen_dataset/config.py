@@ -3,7 +3,10 @@ class Config(object):
     FRAME_POSTFIXES = "AB"
     AMP_FRAME_POSTFIX = "AMP"
 
-    TRAIN_DATASET_SIZE = 1
+    MIN_NUM_OBJECTS = 4
+    MAX_NUM_OBJECTS = 10
+
+    TRAIN_DATASET_SIZE = 10
     TEST_DATASET_SIZE = 10
     # WxH
     WIDTH = 540
