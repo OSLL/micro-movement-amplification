@@ -41,6 +41,7 @@ def create_element_structure(index, mode=TRAIN):
     element_name = f"img{'0' * (LENGTH_INDEX - len(str(index)))}{index}"
     path = os.path.join(path, element_name)
     os.mkdir(path)
+    return path
 
 
 def empty_noise_img(width, height):
@@ -55,7 +56,7 @@ def empty_noise_img(width, height):
 
 def gen_simple_objects(img):
     draw = ImageDraw.Draw(img)
-    for i in range(3):
+    for _ in range(3):
     # Случайно выбираем тип объекта (круг или прямоугольник)
         shape = random.choice(['circle', 'rectangle'])
         
@@ -67,7 +68,7 @@ def gen_simple_objects(img):
         y1 = random.randint(0, 400)
         x2 = random.randint(x1, 500)
         y2 = random.randint(y1, 500)
-        
+        print(x1, y1, x2, y2)
         # Рисуем объект на изображении
         if shape == 'circle':
             draw.ellipse((x1, y1, x2, y2), fill=color)
@@ -78,6 +79,13 @@ def gen_simple_objects(img):
 def get_random_amp_factor():
     return random.random() * 10
 
+def save_img(img, path):
+    try:
+        img.save(path)
+    except:
+        print(f"Not saved image - {path}")
+
+
 def generate():
     #img = empty_noise_img(width=500, height=500)
     #gen_simple_objects(img=img)
@@ -86,7 +94,16 @@ def generate():
     #img.save('random_image.png')
     print("GEN train dataset")
     for train_index in tqdm(range(c.TRAIN_DATASET_SIZE)):
-        create_element_structure(train_index, TRAIN)
+        path_el = create_element_structure(train_index, TRAIN)
+        amp_factor = get_random_amp_factor()
+        for frame in c.FRAME_POSTFIXES:
+            img = empty_noise_img(width=c.WIDTH, height=c.HEIGHT)
+            gen_simple_objects(img=img)
+            #print(frame)
+            filename = os.path.join(path_el, f"frame{frame}.png")
+            save_img(img=img, path=filename)
+            #print(filename)
+            #print(amp_factor)
 
 
     print("GEN test dataset")
