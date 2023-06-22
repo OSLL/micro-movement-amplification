@@ -1,6 +1,8 @@
+from typing import List, Tuple
 from config import Config as c
 from PIL import Image, ImageDraw
 from tqdm import tqdm
+from dataclasses import dataclass
 import shutil
 import random
 import os
@@ -9,6 +11,22 @@ import os
 TRAIN = "train"
 TEST = "test"
 LENGTH_INDEX = 6 # For, 000001 
+
+X = 0
+Y = 1
+
+
+@dataclass
+class DrawObject:
+    color: List[int]
+    shape: str
+    start: Tuple[int, int]
+    end: Tuple[int, int]
+    action: str = ''
+
+    def coords(self) -> Tuple[int, int, int, int]:
+        return (self.start[X], self.start[Y], self.end[X], self.end[Y])
+
 
 
 def prepare_dataset_folder_structure():
@@ -49,20 +67,22 @@ def empty_noise_img(width, height):
 
 def gen_simple_objects(img):
     draw = ImageDraw.Draw(img)
+    draw_objects: List[DrawObject] = []
     for _ in range(random.randint(c.MIN_NUM_OBJECTS, c.MAX_NUM_OBJECTS)):
-    # Случайно выбираем тип объекта (круг или прямоугольник)
         shape = random.choice(['rectangle', 'ellipse'])
-        
-        # Случайно выбираем цвет объекта
+
         color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-        
-        # Случайно выбираем координаты и размеры объекта
         x1 = random.randint(0, c.WIDTH - 1)
         y1 = random.randint(0, c.HEIGHT - 1)
         x2 = random.randint(x1, c.WIDTH)
         y2 = random.randint(y1, c.HEIGHT)
-        #print(x1, y1, x2, y2)
-
+        new_object = DrawObject(color=color,
+                                shape=shape,
+                                start=(x1, y1),
+                                end=(x2, y2))
+        
+        print(new_object)
+        draw_objects.append(new_object;)
         getattr(draw, shape)((x1, y1, x2, y2), fill=color)
 
 
