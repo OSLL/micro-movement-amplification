@@ -18,7 +18,7 @@ Y = 1
 
 @dataclass
 class DrawObject:
-    color: List[int]
+    color: Tuple[int, int, int]
     shape: str
     start: Tuple[int, int]
     end: Tuple[int, int]
@@ -40,8 +40,8 @@ def prepare_dataset_folder_structure():
     test_dir = os.path.join(c.OUTPUT_DIR, TEST)
     os.mkdir(train_dir)
     os.mkdir(test_dir) 
-    amp_file_train = os.path.join(train_dir, "result.txt")
-    amp_file_test = os.path.join(test_dir, "result.txt")
+    amp_file_train = os.path.join(train_dir, c.LABELS_FILENAME)
+    amp_file_test = os.path.join(test_dir, c.LABELS_FILENAME)
     os.mknod(amp_file_train)
     os.mknod(amp_file_test)
 
@@ -65,8 +65,7 @@ def empty_noise_img(width, height):
     return img
 
 
-def gen_simple_objects(img):
-    draw = ImageDraw.Draw(img)
+def gen_simple_objects() -> List[DrawObject]:
     draw_objects: List[DrawObject] = []
     for _ in range(random.randint(c.MIN_NUM_OBJECTS, c.MAX_NUM_OBJECTS)):
         shape = random.choice(['rectangle', 'ellipse'])
@@ -79,14 +78,24 @@ def gen_simple_objects(img):
         new_object = DrawObject(color=color,
                                 shape=shape,
                                 start=(x1, y1),
-                                end=(x2, y2))
-        
-        print(new_object)
-        draw_objects.append(new_object;)
-        getattr(draw, shape)((x1, y1, x2, y2), fill=color)
+                                end=(x2, y2),
+                                action=get_random_action())
+        #print(new_object)
+        draw_objects.append(new_object)
+    return draw_objects
 
 
-def get_random_amp_factor():
+def update_object(objects:  List[DrawObject]):
+    pass
+
+
+def draw_objects(img, objects: List[DrawObject]) -> None:
+    draw = ImageDraw.Draw(img)
+    for obj in objects:
+        getattr(draw, obj.shape)(obj.coords(), fill=obj.color)
+
+
+def get_random_amp_factor() -> float:
     return random.random() * 10
 
 
@@ -101,6 +110,11 @@ def save_img(img, path):
         print(f"Not saved image - {path}")
 
 
+def writa_amp_coef(coef: float, mode=TRAIN) -> None:
+    with open(os.path.join(c.OUTPUT_DIR, mode, c.LABELS_FILENAME), 'a') as file:
+        file.write(f"{str(coef)}\n")
+
+
 def generate():
     #img = empty_noise_img(width=500, height=500)
     #gen_simple_objects(img=img)
@@ -110,23 +124,51 @@ def generate():
     print("GEN train dataset")
     for train_index in tqdm(range(c.TRAIN_DATASET_SIZE)):
         path_el = create_element_structure(train_index, TRAIN)
+        
         amp_factor = get_random_amp_factor()
+        writa_amp_coef(amp_factor)
+        # empty imae without objects
         img = empty_noise_img(width=c.WIDTH, height=c.HEIGHT)
+        # random action, resize, move, and so on
         random_action = get_random_action()
-        #print(random_action)
+        # generate base objects
+
+        objects = gen_simple_objects()
+        
         for frame in c.FRAME_POSTFIXES:
             tmp = img.copy()
-            gen_simple_objects(img=tmp)
-            #print(frame)
-            filename = os.path.join(path_el, f"frame{frame}.png")
+            draw_objects(tmp, objects=objects)
+            filename = os.path.join(path_el, f"frame_{frame}.png")
             save_img(img=tmp, path=filename)
-            #print(filename)
-            #print(amp_factor)
+
+        # amp image
+        tmp = img.copy()
+        draw_objects(tmp, objects=objects)
+        filename = os.path.join(path_el, f"frame_{c.AMP_FRAME_POSTFIX}.png")
+        save_img(img=tmp, path=filename)
 
 
     print("GEN test dataset")
     for test_index in tqdm(range(c.TRAIN_DATASET_SIZE)):
-        create_element_structure(test_index, TEST)
+        path_el = create_element_structure(test_index, TEST)
+        amp_factor = get_random_amp_factor()
+        writa_amp_coef(amp_factor, TEST)
+
+        img = empty_noise_img(width=c.WIDTH, height=c.HEIGHT)
+        random_action = get_random_action()
+
+        objects = gen_simple_objects()
+        
+        for frame in c.FRAME_POSTFIXES:
+            tmp = img.copy()
+            draw_objects(tmp, objects=objects)
+            filename = os.path.join(path_el, f"frame_{frame}.png")
+            save_img(img=tmp, path=filename)
+
+        tmp = img.copy()
+        draw_objects(tmp, objects=objects)
+        filename = os.path.join(path_el, f"frame_{c.AMP_FRAME_POSTFIX}.png")
+        save_img(img=tmp, path=filename)
 
 if __name__ == "__main__":
     prepare_dataset_folder_structure()
