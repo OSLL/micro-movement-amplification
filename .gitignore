@@ -1,4 +1,6 @@
 **/__pycache__*
+**/venv/*
+**/.vscode/*
 .idea/**
 test/*
 data/*
@@ -6,3 +8,5 @@ dataset/**
 !dataset/*.py
 !dataset/*.sh
 **motion_magnification_learning-based/**
+runs/*
+test.py
